@@ -47,21 +47,21 @@ const Navbar = () => {
 
                     {/* Desktop CTAs */}
                     <div className="hidden lg:flex items-center gap-3.5">
-                        <Button
-                            as={Link}
-                            href="/login"
-                            variant="bordered"
-                            className="border-[#262B32] text-[#8B93A1] text-[13px] font-semibold rounded-sm hover:border-[#5B6270] hover:text-[#E8E6E3]"
-                        >
-                            Sign in
-                        </Button>
-                        <Button
-                            as={Link}
-                            href="/register"
-                            className="bg-[#E63946] text-white text-[13px] font-semibold rounded-sm hover:bg-[#d12d3a]"
-                        >
-                            Register as donor
-                        </Button>
+                        <Link href="/login">
+                            <Button
+                                variant="bordered"
+                                className="border-[#262B32] text-[#8B93A1] text-[13px] font-semibold rounded-sm hover:border-[#5B6270] hover:text-[#E8E6E3] cursor-pointer"
+                            >
+                                Sign in
+                            </Button>
+                        </Link>
+                        <Link href="/register">
+                            <Button
+                                className="bg-[#E63946] text-white text-[13px] font-semibold rounded-sm hover:bg-[#d12d3a] cursor-pointer"
+                            >
+                                Register as donor
+                            </Button>
+                        </Link>
                     </div>
 
                     {/* Mobile burger button */}
@@ -93,21 +93,21 @@ const Navbar = () => {
                         </Link>
                     ))}
                     <div className="flex flex-col gap-3 mt-4">
-                        <Button
-                            as={Link}
-                            href="/login"
-                            variant="bordered"
-                            className="border-[#262B32] text-[#8B93A1] text-[13px] font-semibold rounded-sm w-full hover:border-[#5B6270] hover:text-[#E8E6E3]"
-                        >
-                            Sign in
-                        </Button>
-                        <Button
-                            as={Link}
-                            href="/register"
-                            className="bg-[#E63946] text-white text-[13px] font-semibold rounded-sm w-full hover:bg-[#d12d3a]"
-                        >
-                            Register as donor
-                        </Button>
+                        <Link href="/login">
+                            <Button
+                                variant="bordered"
+                                className="border-[#262B32] text-[#8B93A1] text-[13px] font-semibold rounded-sm w-full hover:border-[#5B6270] hover:text-[#E8E6E3] cursor-pointer"
+                            >
+                                Sign in
+                            </Button>
+                        </Link>
+                        <Link href="/register">
+                            <Button
+                                className="bg-[#E63946] text-white text-[13px] font-semibold rounded-sm w-full hover:bg-[#d12d3a] cursor-pointer"
+                            >
+                                Register as donor
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </div>

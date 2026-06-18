@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono, Big_Shoulders, Source_Serif_4, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,6 +55,28 @@ export default function RootLayout({ children }) {
         <Navbar></Navbar>
         <main>
           {children}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: "#14171C",
+                color: "#E8E6E3",
+                border: "1px solid #1D2127",
+                borderRadius: "4px",
+                fontSize: "13px",
+                fontFamily: "var(--font-inter), sans-serif",
+                fontWeight: "500",
+                padding: "12px 16px",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
+              },
+              success: {
+                iconTheme: { primary: "#008000", secondary: "#14171C" },
+              },
+              error: {
+                iconTheme: { primary: "#E63946", secondary: "#14171C" },
+              },
+            }}
+          />
         </main>
       </body>
     </html>
