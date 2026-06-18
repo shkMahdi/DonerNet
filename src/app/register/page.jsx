@@ -5,10 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Eye, EyeOff, Upload, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { authClient } from '../lib/auth-client';
 import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -62,14 +62,18 @@ const RegisterPage = () => {
     };
 
     const onSubmit = async (data) => {
-        // data = { name, email, bloodGroup, district, upazila, password, confirmPassword }
-        console.log(data);
+        const { name, email, password, bloodGroup, district, upazila } = data;
 
         const { data: signUpData, error } = await authClient.signUp.email({
-            ...data,
+            name,
+            email,
+            password,
+            bloodGroup,
+            district,
+            upazila,
             role: "donor",
             status: "active",
-        })
+        });
 
         if (error) {
             console.log("FULL ERROR:", JSON.stringify(error, null, 2));

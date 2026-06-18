@@ -23,7 +23,22 @@ export const auth = betterAuth({
             },
             status: {
                 defaultValue: "active",
-            }
+            },
+            bloodGroup: {
+                type: "string",
+                required: true,
+                input: true,
+            },
+            district: {
+                type: "string",
+                required: true,
+                input: true,
+            },
+            upazila: {
+                type: "string",
+                required: true,
+                input: true,
+            },
         }
     }
 });
