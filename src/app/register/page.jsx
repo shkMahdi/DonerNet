@@ -81,7 +81,7 @@ const RegisterPage = () => {
         } else {
             console.log('Sign-up successful:', signUpData);
             toast.success('Account created! Please log in.');
-            router.push('/login');
+            router.push('/');
         }
     };
 

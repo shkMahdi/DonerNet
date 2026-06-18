@@ -5,23 +5,36 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { authClient } from '../lib/auth-client';
 
 const LoginPage = () => {
+    const router = useRouter();
+    const { register, handleSubmit } = useForm();
     const [showPassword, setShowPassword] = useState(false);
-    const handleclick = ()=>{
-        toast.error("oh no")
-    }
 
-    const h2 = () =>{
-        toast.success("oh yes")
-    }
+    const onSubmit = async (data) => {
+        console.log(data);
+
+        const { data: signInData, error } = await authClient.signIn.email({
+            email: data.email,
+            password: data.password
+        });
+
+        if (error) {
+            console.log("FULL ERROR:", JSON.stringify(error, null, 2));
+            toast.error('Login failed: ' + error.message);
+        } else {
+            console.log('Sign-in successful:', signInData);
+            toast.success('Login successful!');
+            router.push('/');
+        }
+    };
 
     return (
         <div className=" bg-[#0B0D10] flex items-center justify-center px-4 min-h-screen">
             <div className="w-full max-w-md">
-
-                <Button onClick={handleclick}>toast</Button>
-                <Button onClick={h2}> toast2</Button>
 
                 <div className="bg-[#14171C] border border-[#1D2127] rounded-md p-8 sm:p-10">
 
@@ -36,7 +49,7 @@ const LoginPage = () => {
                         Enter your credentials to access your donor profile or hospital dashboard.
                     </p>
 
-                    <form onSubmit={(e) => e.preventDefault()} className="space-y-5">
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
                         {/* Email */}
                         <div>
@@ -46,6 +59,13 @@ const LoginPage = () => {
                             <input
                                 id="email"
                                 type="email"
+                                {...register('email', {
+                                    required: 'Email is required',
+                                    pattern: {
+                                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                        message: 'Enter a valid email address',
+                                    },
+                                })}
                                 placeholder="you@example.com"
                                 className="w-full bg-[#14171C] border border-[#262B32] text-[#E8E6E3] text-[15px] rounded-sm px-3.5 py-3 placeholder:text-[#5B6270] focus:outline-none focus:border-[#E63946] focus:bg-[#171a1f] transition-colors"
                             />
@@ -60,6 +80,10 @@ const LoginPage = () => {
                                 <input
                                     id="password"
                                     type={showPassword ? 'text' : 'password'}
+                                    {...register('password', {
+                                        required: 'Password is required',
+                                        minLength: { value: 8, message: 'Password must be at least 6 characters' },
+                                    })}
                                     placeholder="••••••••••"
                                     className="w-full bg-[#14171C] border border-[#262B32] text-[#E8E6E3] text-[15px] rounded-sm px-3.5 py-3 pr-11 placeholder:text-[#5B6270] focus:outline-none focus:border-[#E63946] focus:bg-[#171a1f] transition-colors"
                                 />
@@ -74,7 +98,7 @@ const LoginPage = () => {
                             </div>
                         </div>
 
-                       
+
 
                         <Button
                             type="submit"
