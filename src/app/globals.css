@@ -1,6 +1,23 @@
 @import "tailwindcss";
-@import "@heroui/styles"; 
+@import "@heroui/styles";
 
 :root {
   --background: #0B0D10;
+}
+
+body {
+  font-family: var(--font-inter), sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-big-shoulders);
+}
+
+.font-big-shoulders {
+  font-family: var(--font-big-shoulders);;
 }

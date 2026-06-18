@@ -5,8 +5,7 @@ import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 
 const navLinks = [
-    { label: 'Find requests', href: '/requests' },
-    { label: 'Become a donor', href: '/register' },
+    { label: 'Donation Requests', href: '/requests' },
     { label: 'Blood banks', href: '/blood-banks' },
     { label: 'About', href: '/about' },
 ];
@@ -20,8 +19,8 @@ const Navbar = () => {
                 <div className="flex items-center justify-between h-18">
 
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2.5 font-bold text-xl uppercase tracking-wide text-[#E8E6E3]" style={{ fontFamily: "'Big Shoulders Display', sans-serif" }}>
-                        <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                    <Link href="/" className="flex items-center gap-2.5 font-big-shoulders font-bold text-3xl tracking-wide text-[#E8E6E3]">
+                        <svg width="36" height="36" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                             <line x1="14" y1="14" x2="4" y2="6" stroke="#5B6270" strokeWidth="1.1" />
                             <line x1="14" y1="14" x2="24" y2="7" stroke="#5B6270" strokeWidth="1.1" />
                             <line x1="14" y1="14" x2="22" y2="23" stroke="#5B6270" strokeWidth="1.1" />
@@ -30,7 +29,7 @@ const Navbar = () => {
                             <circle cx="22" cy="23" r="2.2" fill="#0B0D10" stroke="#5B6270" strokeWidth="1.1" />
                             <path d="M14 4C14 4 7.5 12 7.5 16C7.5 19.5 10.5 22 14 22C17.5 22 20.5 19.5 20.5 16C20.5 12 14 4 14 4Z" fill="#E63946" />
                         </svg>
-                        DonorNet
+                        <p>Donor<span className='text-[#E63946]'>Net</span></p>
                     </Link>
 
                     {/* Desktop nav links */}
