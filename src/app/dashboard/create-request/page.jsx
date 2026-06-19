@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { Eye, EyeOff, Upload, Loader2 } from 'lucide-react';
 import { Button } from "@heroui/react";
 import Link from "next/link";
+import { createRequest } from "@/app/lib/actions/requests";
+import toast from "react-hot-toast";
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -45,7 +47,7 @@ const CreateRequestPage = () => {
     }, [selectedDistrictId, upazilas]);
 
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
          const { name, bloodGroup, district, upazila, hospitalName, hospitalAddress, date, time, requestMessage } = data;
 
          const request = {
@@ -61,6 +63,11 @@ const CreateRequestPage = () => {
             status: "pending"
          }
          console.log(request);
+         const res = await createRequest(request);
+
+         if(res.insertedId){
+            toast.success('Requested Created Successfully!')
+         }
     }
 
     return (
@@ -87,7 +94,7 @@ const CreateRequestPage = () => {
                             {/* Name */}
                             <div>
                                 <label htmlFor="name" className="block text-xs font-semibold uppercase tracking-wide text-[#8B93A1] mb-2">
-                                    Recipient's Name
+                                    Recipients Name
                                 </label>
                                 <input
                                     id="name"
