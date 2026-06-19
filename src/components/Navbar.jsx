@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Menu, X, ChevronDown, LayoutDashboard, LogOut } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useSession, authClient } from '../app/lib/auth-client';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 
@@ -18,10 +18,12 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
-    const { data: session } = useSession();
     const router = useRouter();
-
+    
+    const { data: session } = useSession();
     const user = session?.user;
+
+    const pathname = usePathname();
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -33,6 +35,9 @@ const Navbar = () => {
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
     }, []);
+
+    // Hide navbar on dashboard pages — must be after all hooks
+    if (pathname.includes("dashboard")) return null;
 
     const handleLogout = async () => {
         await authClient.signOut();
@@ -111,7 +116,7 @@ const Navbar = () => {
                                 {dropdownOpen && (
                                     <div className="absolute right-0 mt-2 w-44 bg-[#14171C] border border-[#1D2127] rounded-sm shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden">
                                         <Link
-                                            href="/dashboard"
+                                            href='/dashboard'
                                             onClick={() => setDropdownOpen(false)}
                                             className="flex items-center gap-2.5 px-4 py-3 text-[13px] font-medium text-[#8B93A1] hover:text-[#E8E6E3] hover:bg-[#191D23] transition-colors"
                                         >
