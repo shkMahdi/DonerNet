@@ -9,7 +9,7 @@ const links = [
     { label: "Overview",        href: "/dashboard",              icon: LayoutDashboard, roles: ["admin", "volunteer", "donor"] },
     { label: "My Profile",      href: "/dashboard/profile",      icon: User,            roles: ["admin", "volunteer", "donor"] },
     { label: "My Requests",     href: "/dashboard/requests",     icon: ClipboardList,   roles: ["admin", "volunteer", "donor"] },
-    { label: "Create Request",  href: "/dashboard/create-requests", icon: Pen,          roles: ["admin", "volunteer", "donor"] },
+    { label: "Create Request",  href: "/dashboard/create-request", icon: Pen,          roles: ["admin", "volunteer", "donor"] },
     { label: "All Requests",    href: "/dashboard/all-requests", icon: List,            roles: ["admin", "volunteer"] },
     { label: "All Users",       href: "/dashboard/all-users",    icon: Users,           roles: ["admin"] },
 ];
@@ -23,7 +23,6 @@ const SidebarContent = ({ onLinkClick }) => {
 
     return (
         <aside className="w-60 flex-shrink-0 bg-[#0D1014] border-r border-[#1D2127] flex flex-col h-full">
-            {/* Logo + close button (close only shown on mobile) */}
             <div className="h-16 flex items-center justify-between px-5 border-b border-[#1D2127]">
                 <Link
                     href="/"

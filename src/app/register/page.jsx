@@ -30,7 +30,8 @@ const RegisterPage = () => {
         formState: { errors, isSubmitting },
     } = useForm();
 
-    const selectedDistrict = watch('district');
+    const [selectedDistrictId, setSelectedDistrictId] = useState('');
+
 
     useEffect(() => {
         fetch('/districts.json')
@@ -50,9 +51,9 @@ const RegisterPage = () => {
 
     // derived value — computed during render, not stored as separate state
     const filteredUpazilas = useMemo(() => {
-        if (!selectedDistrict) return [];
-        return upazilas.filter((u) => String(u.district_id) === String(selectedDistrict));
-    }, [selectedDistrict, upazilas]);
+        if (!selectedDistrictId) return [];
+        return upazilas.filter((u) => String(u.district_id) === String(selectedDistrictId));
+    }, [selectedDistrictId, upazilas]);
 
     const handleAvatarChange = (e) => {
         const file = e.target.files?.[0];
@@ -205,6 +206,11 @@ const RegisterPage = () => {
                                     id="district"
                                     defaultValue=""
                                     {...register('district', { required: 'District is required' })}
+                                    onChange={(e) => {
+                                        const selected = districts.find((d) => d.name === e.target.value);
+                                        setSelectedDistrictId(selected?.id ?? '');
+                                        register('district').onChange(e);
+                                    }}
                                     className="w-full bg-[#14171C] border border-[#262B32] text-[#E8E6E3] text-[15px] rounded-sm px-3.5 py-3 focus:outline-none focus:border-[#E63946] transition-colors appearance-none"
                                     style={{
                                         backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%238B93A1' stroke-width='1.5'/%3E%3C/svg%3E\")",
@@ -214,7 +220,7 @@ const RegisterPage = () => {
                                 >
                                     <option value="" disabled>Select</option>
                                     {districts.map((d) => (
-                                        <option key={d.id} value={d.id}>{d.name}</option>
+                                        <option key={d.id} value={d.name}>{d.name}</option>
                                     ))}
                                 </select>
                                 {errors.district && (
@@ -230,7 +236,7 @@ const RegisterPage = () => {
                             </label>
                             <select
                                 id="upazila"
-                                disabled={!selectedDistrict}
+                                disabled={!selectedDistrictId}
                                 defaultValue=""
                                 {...register('upazila', { required: 'Upazila is required' })}
                                 className="w-full bg-[#14171C] border border-[#262B32] text-[#E8E6E3] text-[15px] rounded-sm px-3.5 py-3 focus:outline-none focus:border-[#E63946] transition-colors appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
@@ -241,10 +247,10 @@ const RegisterPage = () => {
                                 }}
                             >
                                 <option value="" disabled>
-                                    {selectedDistrict ? 'Select upazila' : 'Select a district first'}
+                                    {selectedDistrictId ? 'Select upazila' : 'Select a district first'}
                                 </option>
                                 {filteredUpazilas.map((u) => (
-                                    <option key={u.id} value={u.id}>{u.name}</option>
+                                    <option key={u.id} value={u.name}>{u.name}</option>
                                 ))}
                             </select>
                             {errors.upazila && (
