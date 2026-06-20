@@ -7,6 +7,8 @@ import { Button } from "@heroui/react";
 import Link from "next/link";
 import { createRequest } from "@/app/lib/actions/requests";
 import toast from "react-hot-toast";
+import { getSession } from "better-auth/api";
+import { useSession } from "@/app/lib/auth-client";
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -15,6 +17,8 @@ const CreateRequestPage = () => {
     const [districts, setDistricts] = useState([]);
     const [upazilas, setUpazilas] = useState([]);
 
+    const {data: session} = useSession();
+    const user = session?.user;
 
     const {
         register,
@@ -60,7 +64,9 @@ const CreateRequestPage = () => {
             date,
             time, 
             requestMessage,
-            status: "pending"
+            status: "pending",
+            requesterName: user.name,
+            requesterEmail: user.email
          }
          console.log(request);
          const res = await createRequest(request);
@@ -78,7 +84,7 @@ const CreateRequestPage = () => {
                     <span className="text-[11px] font-mono uppercase tracking-wider text-[#E63946]">Make A Request</span>
                 </div>
                 <h1 className="text-4xl font-bold text-[#E8E6E3] mb-1">
-                    Make A Donation Request
+                    Create A Donation Request
                 </h1>
                 <p className="text-sm text-[#8B93A1] mb-8">
                     And Get Help Form Nearby Blood Doners

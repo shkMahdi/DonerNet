@@ -8,7 +8,7 @@ import { useSession } from "@/app/lib/auth-client";
 const links = [
     { label: "Overview",        href: "/dashboard",              icon: LayoutDashboard, roles: ["admin", "volunteer", "donor"] },
     { label: "My Profile",      href: "/dashboard/profile",      icon: User,            roles: ["admin", "volunteer", "donor"] },
-    { label: "My Requests",     href: "/dashboard/requests",     icon: ClipboardList,   roles: ["admin", "volunteer", "donor"] },
+    { label: "My Requests",     href: "/dashboard/my-requests",     icon: ClipboardList,   roles: ["admin", "volunteer", "donor"] },
     { label: "Create Request",  href: "/dashboard/create-request", icon: Pen,          roles: ["admin", "volunteer", "donor"] },
     { label: "All Requests",    href: "/dashboard/all-requests", icon: List,            roles: ["admin", "volunteer"] },
     { label: "All Users",       href: "/dashboard/all-users",    icon: Users,           roles: ["admin"] },
