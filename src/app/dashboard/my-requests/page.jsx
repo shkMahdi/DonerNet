@@ -1,23 +1,27 @@
 import { getMyRequests } from '@/app/lib/api/my-requests';
-import React from 'react';
+import MyRequestsTable from './MyRequestsTable';   // Client Component
 
 const MyRequests = async () => {
-    const requesterEmail = "mahdi@sheikh.com"
-    const requests = await getMyRequests(requesterEmail)
-    console.log(requests)
+    const requesterEmail = "mahdi@sheikh.com"; // TODO: Get from auth later
+
+    const requests = await getMyRequests(requesterEmail);
+
     return (
-        <div className="bg-[#0B0D10] flex items-center justify-center py-4">
-            <div className="w-full max-w-6xl">
-                <div className="flex items-center gap-2 mb-2">
+        <div className="bg-[#0B0D10] min-h-screen py-8">
+            <div className="max-w-7xl mx-auto px-6">
+                <div className="flex items-center gap-2 mb-3">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#E63946] shadow-[0_0_0_3px_rgba(230,57,70,0.14)]" />
-                    <span className="text-[11px] font-mono uppercase tracking-wider text-[#E63946]">List of Request</span>
+                    <span className="text-[11px] font-mono uppercase tracking-wider text-[#E63946]">My Activity</span>
                 </div>
-                <h1 className="text-4xl font-bold text-[#E8E6E3] mb-1">
+                
+                <h1 className="text-4xl font-bold text-[#E8E6E3] mb-2">
                     My Donation Requests
                 </h1>
-                <p className="text-sm text-[#8B93A1] mb-8">
-                    Manage and track your blood donation posts.
+                <p className="text-[#8B93A1] mb-8">
+                    Track and manage all your blood donation requests.
                 </p>
+
+                <MyRequestsTable requests={requests} />
             </div>
         </div>
     );
