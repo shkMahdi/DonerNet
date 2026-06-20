@@ -24,6 +24,11 @@ export const auth = betterAuth({
             status: {
                 defaultValue: "active",
             },
+            avatar: {
+                type: "string",
+                required: false,
+                input: true,
+            },
             bloodGroup: {
                 type: "string",
                 required: true,

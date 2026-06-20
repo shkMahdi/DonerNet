@@ -38,7 +38,7 @@ export default function MyRequestsTable({ requests = [] }) {
         <>
             <div className="mb-6">
                 <Select
-                    className="w-[256px]"
+                    className="w-fit px-2"
                     aria-label="Filter by status"
                     value={statusFilter}
                     onChange={setStatusFilter}

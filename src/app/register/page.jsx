@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { authClient } from '../lib/auth-client';
 import { useRouter } from 'next/navigation';
+import { imgUpload } from '../lib/imgUpload';
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -19,6 +20,7 @@ const RegisterPage = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState(null);
     const [uploading, setUploading] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState(null);
 
     const [districts, setDistricts] = useState([]);
     const [upazilas, setUpazilas] = useState([]);
@@ -55,11 +57,26 @@ const RegisterPage = () => {
         return upazilas.filter((u) => String(u.district_id) === String(selectedDistrictId));
     }, [selectedDistrictId, upazilas]);
 
-    const handleAvatarChange = (e) => {
+    const handleAvatarChange = async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        
         setAvatarPreview(URL.createObjectURL(file));
-        // actual imgBB upload call goes here — left for your implementation
+        setUploading(true);
+        
+        try {
+            const imageResult = await imgUpload(file);
+            if (imageResult?.url) {
+                setAvatarUrl(imageResult.url);
+                toast.success('Image uploaded successfully!');
+            }
+        } catch (error) {
+            console.error('Image upload failed:', error);
+            toast.error('Failed to upload image');
+            setAvatarUrl(null);
+        } finally {
+            setUploading(false);
+        }
     };
 
     const onSubmit = async (data) => {
@@ -74,6 +91,7 @@ const RegisterPage = () => {
             upazila,
             role: "donor",
             status: "active",
+            avatar: avatarUrl,
         });
 
         if (error) {
@@ -117,12 +135,13 @@ const RegisterPage = () => {
                                 )}
                             </div>
                             <div>
-                                <label htmlFor="avatar" className="inline-block cursor-pointer text-[13px] font-semibold text-[#E8E6E3] border border-[#262B32] rounded-sm px-4 py-2 hover:border-[#5B6270] transition-colors">
+                                <label htmlFor="image" className="inline-block cursor-pointer text-[13px] font-semibold text-[#E8E6E3] border border-[#262B32] rounded-sm px-4 py-2 hover:border-[#5B6270] transition-colors">
                                     Upload photo
                                 </label>
                                 <input
-                                    id="avatar"
+                                    id="image"
                                     type="file"
+                                    {...register('image')}
                                     accept="image/*"
                                     onChange={handleAvatarChange}
                                     className="hidden"

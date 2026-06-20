@@ -8,7 +8,7 @@ const MyRequests = async () => {
 
     return (
         <div className="bg-[#0B0D10] min-h-screen py-8">
-            <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-7xl mx-auto">
                 <div className="flex items-center gap-2 mb-3">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#E63946] shadow-[0_0_0_3px_rgba(230,57,70,0.14)]" />
                     <span className="text-[11px] font-mono uppercase tracking-wider text-[#E63946]">My Activity</span>
