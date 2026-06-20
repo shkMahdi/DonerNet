@@ -89,9 +89,9 @@ const Navbar = () => {
                                 >
                                     {/* Avatar */}
                                     <div className="w-7 h-7 rounded-full overflow-hidden bg-[#191D23] border border-[#262B32] flex-shrink-0 flex items-center justify-center">
-                                        {user.image ? (
+                                        {user.avatar ? (
                                             <Image
-                                                src={user.image}
+                                                src={user.avatar}
                                                 alt={user.name}
                                                 width={28}
                                                 height={28}
