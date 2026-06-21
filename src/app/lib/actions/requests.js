@@ -1,17 +1,21 @@
-'use server'
+import { authClient } from "../auth-client";
 
 export const createRequest = async (newRequest) => {
+    const {data: token} = await authClient.token()
+
+    if(!token) {
+        throw new Error('No token found');
+    }
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/requests`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token?.token}`,
         },
         body: JSON.stringify(newRequest)
     });
 
-    if (!response.ok) {
-        throw new Error('Failed to create request');
-    }
 
     return response.json();
 };
