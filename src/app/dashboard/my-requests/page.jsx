@@ -1,8 +1,14 @@
 import { getMyRequests } from '@/app/lib/api/my-requests';
 import MyRequestsTable from './MyRequestsTable';   // Client Component
+import { auth } from '@/app/lib/auth';
+import { headers } from 'next/headers';
 
 const MyRequests = async () => {
-    const requesterEmail = "mahdi@sheikh.com"; // TODO: Get from auth later
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+    const user = session?.user;
+    const requesterEmail = user?.email; // TODO: Get from auth later
 
     const requests = await getMyRequests(requesterEmail);
 
