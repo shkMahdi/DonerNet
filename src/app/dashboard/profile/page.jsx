@@ -5,17 +5,18 @@ import { useForm } from "react-hook-form";
 import { Upload } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@heroui/react";
+import Link from "next/link";
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 const ProfilePage = () => {
-    // All hooks at the TOP, before any early returns!
     const { data: session, isPending } = useSession();
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
     const [districts, setDistricts] = useState([]);
     const [upazilas, setUpazilas] = useState([]);
     const [selectedDistrictId, setSelectedDistrictId] = useState('');
     const [previewAvatar, setPreviewAvatar] = useState(null);
+    const [isEditing, setIsEditing] = useState(false); // Moved this up!
 
     const user = session?.user;
     const { name, email, avatar, bloodGroup, district, upazila } = user || {};
@@ -57,6 +58,10 @@ const ProfilePage = () => {
         }
     };
 
+    const handleEdit = () => {
+        setIsEditing(true);
+    };
+
     const onSubmit = async (data) => {
         console.log(data);
     };
@@ -77,10 +82,10 @@ const ProfilePage = () => {
                     <div className="flex justify-between items-center">
                         <div>
                             <h1 className="text-3xl font-bold text-[#E8E6E3] mb-1">Profile</h1>
-                            <p className="text-sm text-[#8B93A1] mb-8">Update your donor profile information</p>
+                            <p className="text-sm text-[#8B93A1] mb-8">Update your profile information</p>
                         </div>
                         <div>
-                            <Button variant='outline' size="sm" className=" text-white text-sm font-semibold rounded-sm py-3.5 mt-2 hover:bg-[#d12d3a] transition-colors disabled:opacity-60">
+                            <Button hidden={isEditing} onClick={handleEdit} variant='outline' size="sm" className=" text-white text-sm font-semibold rounded-sm py-3.5 mt-2 hover:bg-[#d12d3a] transition-colors disabled:opacity-60">
                                 Edit Profile
                             </Button>
                         </div>
@@ -88,14 +93,14 @@ const ProfilePage = () => {
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                         {/* Avatar upload */}
-                        <div className="flex items-center gap-4">
-                            <div className="relative w-16 h-16 rounded-full bg-[#191D23] border border-[#262B32] flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="relative w-30 h-30 rounded-full bg-[#191D23] border border-[#262B32] flex items-center justify-center overflow-hidden shrink-0">
                                 {previewAvatar || avatar ? (
                                     <Image
                                         src={previewAvatar || avatar}
                                         alt={name || 'User avatar'}
-                                        width={64}
-                                        height={64}
+                                        width={80}
+                                        height={80}
                                         className="object-cover w-full h-full"
                                     />
                                 ) : (
@@ -103,7 +108,10 @@ const ProfilePage = () => {
                                 )}
                             </div>
                             <div>
-                                <label htmlFor="avatar" className="inline-block cursor-pointer text-[13px] font-semibold text-[#E8E6E3] border border-[#262B32] rounded-sm px-4 py-2 hover:border-[#5B6270] transition-colors">
+                                <p hidden={isEditing} className="text-xs text-[#5B6270]">Profile Photo</p>
+                            </div>
+                            <div className="text-center" hidden={!isEditing}>
+                                <label htmlFor="avatar" className="inline-block cursor-pointer text-xs font-semibold text-[#E8E6E3] border border-[#262B32] rounded-sm px-4 py-2 hover:border-[#5B6270] transition-colors">
                                     Change photo
                                 </label>
                                 <input
@@ -123,6 +131,7 @@ const ProfilePage = () => {
                             <div>
                                 <label htmlFor="name" className="block text-xs font-semibold uppercase tracking-wide text-[#8B93A1] mb-2">Full name</label>
                                 <input
+                                    disabled={!isEditing}
                                     id="name"
                                     type="text"
                                     defaultValue={name}
@@ -135,6 +144,7 @@ const ProfilePage = () => {
                             <div>
                                 <label htmlFor="bloodGroup" className="block text-xs font-semibold uppercase tracking-wide text-[#8B93A1] mb-2">Blood group</label>
                                 <select
+                                    disabled={!isEditing}
                                     id="bloodGroup"
                                     defaultValue={bloodGroup}
                                     {...register('bloodGroup', { required: 'Blood group is required' })}
@@ -171,6 +181,7 @@ const ProfilePage = () => {
                             <div>
                                 <label htmlFor="district" className="block text-xs font-semibold uppercase tracking-wide text-[#8B93A1] mb-2">District</label>
                                 <select
+                                    disabled={!isEditing}
                                     id="district"
                                     defaultValue={district}
                                     {...register('district', { required: 'District is required' })}
@@ -196,7 +207,7 @@ const ProfilePage = () => {
                                 <label htmlFor="upazila" className="block text-xs font-semibold uppercase tracking-wide text-[#8B93A1] mb-2">Upazila</label>
                                 <select
                                     id="upazila"
-                                    disabled={!selectedDistrictId}
+                                    disabled={!selectedDistrictId || !isEditing}
                                     defaultValue={upazila}
                                     {...register('upazila', { required: 'Upazila is required' })}
                                     className="w-full bg-[#14171C] border border-[#262B32] text-[#E8E6E3] text-[15px] rounded-sm px-3.5 py-3 focus:outline-none focus:border-[#E63946] transition-colors appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
@@ -216,14 +227,23 @@ const ProfilePage = () => {
                         </div>
 
 
+                        <div className="flex justify-between items-center gap-4">
+                            <Button
+                                variant="danger"
+                                hidden={!isEditing}
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="w-full rounded-sm"
+                            >
+                                {isSubmitting ? 'Updating Profile...' : 'Update Profile'}
+                            </Button>
+                            <Link href={`/dashboard/profile`} className="w-full" hidden={!isEditing}>
+                                <Button  variant="outline" className="rounded-sm w-full">
+                                    Cancel
+                                </Button>
+                            </Link>
+                        </div>
 
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="w-full bg-[#E63946] text-white text-sm font-semibold rounded-sm py-3.5 mt-2 hover:bg-[#d12d3a] transition-colors disabled:opacity-60"
-                        >
-                            {isSubmitting ? 'Updating Profile...' : 'Update Profile'}
-                        </Button>
                     </form>
                 </div>
             </div>
