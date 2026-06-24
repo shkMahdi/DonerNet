@@ -38,7 +38,7 @@ export default function MyRequestsTable({ requests = [] }) {
         <>
             <div className="mb-6">
                 <Select
-                    className="w-fit px-2"
+                    className="w-fit px-4"
                     aria-label="Filter by status"
                     value={statusFilter}
                     onChange={setStatusFilter}
@@ -52,7 +52,7 @@ export default function MyRequestsTable({ requests = [] }) {
                             {STATUS_FILTERS.map(({ label, value }) => (
                                 <ListBox.Item key={value} id={value} textValue={label}>
                                     {label}
-                                    <ListBox.ItemIndicator />
+                                    {/* <ListBox.ItemIndicator /> */}
                                 </ListBox.Item>
                             ))}
                         </ListBox>
@@ -67,11 +67,10 @@ export default function MyRequestsTable({ requests = [] }) {
                             <Table.Column isRowHeader>#</Table.Column>
                             <Table.Column>Recipient Name</Table.Column>
                             <Table.Column>Location</Table.Column>
-                            <Table.Column>Date</Table.Column>
-                            <Table.Column>Time</Table.Column>
+                            <Table.Column>Hospital</Table.Column>
+                            <Table.Column>Date & Time</Table.Column>
                             <Table.Column>Blood Group</Table.Column>
                             <Table.Column>Status</Table.Column>
-                            <Table.Column>Hospital</Table.Column>
                             <Table.Column>Actions</Table.Column>
                         </Table.Header>
                         <Table.Body>
@@ -83,20 +82,6 @@ export default function MyRequestsTable({ requests = [] }) {
                                         <Table.Cell>
                                             {req.district}, {req.upazila}
                                         </Table.Cell>
-                                        <Table.Cell>{format(new Date(req.date), 'dd MMM yyyy')}</Table.Cell>
-                                        <Table.Cell>{req.time}</Table.Cell>
-                                        <Table.Cell>
-                                            <Chip color="danger" variant="soft" className="font-bold">
-                                                {req.bloodGroup.toUpperCase()}
-                                            </Chip>
-                                        </Table.Cell>
-                                        <Table.Cell>
-                                            <Chip color={req.status === 'pending' ? 'warning' :
-                                                    req.status === 'inprogress' ? 'info' :
-                                                        req.status === 'done' ? 'success' : 'error'} variant="soft">
-                                                {req.status.toUpperCase()}
-                                            </Chip>
-                                        </Table.Cell>
                                         <Table.Cell>
                                             <div className="text-sm">
                                                 <p className="font-medium">{req.hospitalName}</p>
@@ -104,6 +89,21 @@ export default function MyRequestsTable({ requests = [] }) {
                                                     <p className="text-gray-500 text-xs line-clamp-1">{req.hospitalAddress}</p>
                                                 )}
                                             </div>
+                                        </Table.Cell>
+                                        <Table.Cell >
+                                           <p>{format(new Date(req.date), 'dd MMM yyyy')}</p>  <p className="text-xs text-gray-500 line-clamp-1">{req.time}</p>
+                                        </Table.Cell>
+                                        <Table.Cell>
+                                            <Chip color="danger" variant="soft" className="font-bold">
+                                                {req.bloodGroup.toUpperCase()}
+                                            </Chip>
+                                        </Table.Cell>
+                                        <Table.Cell>
+                                            <Chip color={req.status === 'pending' ? 'warning' :
+                                                req.status === 'inprogress' ? 'info' :
+                                                    req.status === 'done' ? 'success' : 'error'} variant="soft">
+                                                {req.status.toUpperCase()}
+                                            </Chip>
                                         </Table.Cell>
                                         <Table.Cell>
                                             <div className="flex items-center">

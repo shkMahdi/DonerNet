@@ -187,9 +187,9 @@ const Navbar = () => {
                             <>
                                 <div className="flex items-center gap-3 py-2 border-b border-[#1D2127]">
                                     <div className="w-8 h-8 rounded-full overflow-hidden bg-[#191D23] border border-[#262B32] flex-shrink-0 flex items-center justify-center">
-                                        {user.image ? (
+                                        {user.avatar ? (
                                             <Image
-                                                src={user.image}
+                                                src={user.avatar}
                                                 alt={user.name}
                                                 width={32}
                                                 height={32}
