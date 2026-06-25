@@ -1,5 +1,6 @@
 import { getRequestDetail } from "@/app/lib/api/request-detail";
-import { MapPin, Calendar, Clock, Phone } from 'lucide-react';
+import DonateModal from "@/components/DonateModal";
+import { MapPin, Calendar, Clock } from 'lucide-react';
 
 const statusStyles = {
     pending: { bg: '#3D3318', text: '#D9A441', label: 'Pending' },
@@ -10,7 +11,7 @@ const statusStyles = {
 const RequestDetail = async ({ params }) => {
     const { id } = await params;
     const request = await getRequestDetail(id);
-    
+
     const status = statusStyles[request.status] || statusStyles.pending;
 
     return (
@@ -97,19 +98,7 @@ const RequestDetail = async ({ params }) => {
                                     <p className="text-[#E8E6E3] font-medium">{request.time}</p>
                                 </div>
                             </div>
-
-                            {/* Contact (if available) */}
-                            {request.contactNumber && (
-                                <div className="flex items-start gap-3 text-[14px]">
-                                    <div className="flex items-center justify-center w-8 h-8 rounded-md bg-[#191D23] shrink-0">
-                                        <Phone size={16} className="text-[#5B6270]" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[#8B93A1] text-xs uppercase tracking-wide mb-1">Contact Number</p>
-                                        <p className="text-[#E8E6E3] font-medium">{request.contactNumber}</p>
-                                    </div>
-                                </div>
-                            )}
+                            <DonateModal request={request} />
                         </div>
                     </div>
                 </div>
