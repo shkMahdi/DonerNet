@@ -8,6 +8,7 @@ import { Eye, EyeOff, Upload, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { authClient } from '../lib/auth-client';
+import Spinner from "@/components/Spinner";
 import { useRouter } from 'next/navigation';
 import { imgUpload } from '../lib/imgUpload';
 

@@ -1,60 +1,110 @@
 'use client'
-import { useSession } from "@/app/lib/auth-client";
+import { authClient, useSession } from "@/app/lib/auth-client";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Upload } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@heroui/react";
-import Link from "next/link";
+import toast from "react-hot-toast";
+import { imgUpload } from "@/app/lib/imgUpload";
+import Spinner from "@/components/Spinner";
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 const ProfilePage = () => {
     const { data: session, isPending } = useSession();
-    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
+    const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm();
+
     const [districts, setDistricts] = useState([]);
     const [upazilas, setUpazilas] = useState([]);
     const [selectedDistrictId, setSelectedDistrictId] = useState('');
     const [previewAvatar, setPreviewAvatar] = useState(null);
-    const [isEditing, setIsEditing] = useState(false); // Moved this up!
+    const [isEditing, setIsEditing] = useState(false);
+    const [newAvatarUrl, setNewAvatarUrl] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const [locationsLoaded, setLocationsLoaded] = useState(false);
+
 
     const user = session?.user;
     const { name, email, avatar, bloodGroup, district, upazila } = user || {};
 
-    // Fetch districts and upazilas
+    // Fetch districts and upazilas first
     useEffect(() => {
-        fetch('/districts.json')
-            .then((res) => res.json())
-            .then((data) => {
-                const table = data.find((item) => item.type === 'table');
-                setDistricts(table?.data || []);
-                // Set selected district from user data
-                if (user?.district) {
-                    const selectedDistrict = table?.data?.find((d) => d.name === user.district);
-                    if (selectedDistrict) {
-                        setSelectedDistrictId(selectedDistrict.id);
-                    }
-                }
-            });
+        const fetchLocations = async () => {
+            try {
+                const [districtsRes, upazilasRes] = await Promise.all([
+                    fetch('/districts.json').then(res => res.json()),
+                    fetch('/upazilas.json').then(res => res.json())
+                ]);
+                
+                const districtsTable = districtsRes.find((item) => item.type === 'table');
+                const upazilasTable = upazilasRes.find((item) => item.type === 'table');
+                
+                setDistricts(districtsTable?.data || []);
+                setUpazilas(upazilasTable?.data || []);
+                setLocationsLoaded(true);
+            } catch (error) {
+                console.error('Failed to fetch locations:', error);
+            }
+        };
+        
+        fetchLocations();
+    }, []);
 
-        fetch('/upazilas.json')
-            .then((res) => res.json())
-            .then((data) => {
-                const table = data.find((item) => item.type === 'table');
-                setUpazilas(table?.data || []);
-            });
-    }, [user]);
-
-    // Derived value
     const filteredUpazilas = useMemo(() => {
         if (!selectedDistrictId) return [];
         return upazilas.filter((u) => String(u.district_id) === String(selectedDistrictId));
     }, [selectedDistrictId, upazilas]);
 
-    const handleAvatarChange = (e) => {
+    // 1. First set selectedDistrictId when user and districts are ready
+    useEffect(() => {
+        if (user && locationsLoaded && districts.length > 0) {
+            const selectedDistrict = districts.find((d) => d.name === user.district);
+            if (selectedDistrict) {
+                setSelectedDistrictId(selectedDistrict.id);
+            }
+        }
+    }, [user, locationsLoaded, districts]);
+
+    // 2. Now reset the form AFTER we have selectedDistrictId and filteredUpazilas
+    useEffect(() => {
+        if (
+            user && 
+            locationsLoaded && 
+            selectedDistrictId && 
+            filteredUpazilas.some(u => u.name === user.upazila)
+        ) {
+            reset({
+                name: user.name,
+                bloodGroup: user.bloodGroup,
+                district: user.district,
+                upazila: user.upazila,
+            });
+        }
+    }, [user, locationsLoaded, selectedDistrictId, filteredUpazilas, reset]);
+
+    const handleAvatarChange = async (e) => {
         const file = e.target.files?.[0];
-        if (file) {
-            setPreviewAvatar(URL.createObjectURL(file));
+        if (!file) return;
+
+        // Set local preview immediately
+        setPreviewAvatar(URL.createObjectURL(file));
+        setUploading(true);
+
+        try {
+            const imageResult = await imgUpload(file);
+            if (imageResult?.url) {
+                setNewAvatarUrl(imageResult.url);
+                toast.success('Image uploaded successfully!');
+            }
+        } catch (error) {
+            console.error('Image upload failed:', error);
+            toast.error('Failed to upload image');
+            // Reset on error
+            setPreviewAvatar(null);
+            setNewAvatarUrl(null);
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -62,13 +112,50 @@ const ProfilePage = () => {
         setIsEditing(true);
     };
 
-    const onSubmit = async (data) => {
-        console.log(data);
+    const handleCancel = () => {
+        reset({
+            name: user.name,
+            bloodGroup: user.bloodGroup,
+            district: user.district,
+            upazila: user.upazila,
+        });
+        setPreviewAvatar(null);
+        setNewAvatarUrl(null);
+        setIsEditing(false);
     };
 
-    // Early return after all hooks!
-    if (isPending || !user) {
-        return <div className="min-h-screen bg-[#0B0D10] flex items-center justify-center text-white">Loading...</div>;
+
+    const onSubmit = async (data) => {
+        try {
+            // Determine which avatar URL to use: new one if uploaded, else original
+            const finalAvatarUrl = newAvatarUrl || avatar;
+
+            const payload = {
+                name: data.name,
+                bloodGroup: data.bloodGroup,
+                district: data.district,
+                upazila: data.upazila,
+                avatar: finalAvatarUrl,
+            };
+
+            const { error } = await authClient.updateUser(payload);
+
+            if (error) {
+                toast.error(error.message || "Failed to update information.");
+            } else {
+                toast.success("Information updated successfully!");
+                setIsEditing(false);
+                setPreviewAvatar(null);
+                setNewAvatarUrl(null);
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("Something went wrong while updating your profile.");
+        }
+    };
+
+    if (isPending || !user || !locationsLoaded) {
+        return <Spinner />;
     }
 
     return (
@@ -94,13 +181,15 @@ const ProfilePage = () => {
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                         {/* Avatar upload */}
                         <div className="flex flex-col items-center gap-4">
-                            <div className="relative w-30 h-30 rounded-full bg-[#191D23] border border-[#262B32] flex items-center justify-center overflow-hidden shrink-0">
-                                {previewAvatar || avatar ? (
+                            <div className="relative w-24 h-24 rounded-full bg-[#191D23] border border-[#262B32] flex items-center justify-center overflow-hidden shrink-0">
+                                {uploading ? (
+                                    <div className="text-[#5B6270]">Uploading...</div>
+                                ) : previewAvatar || avatar ? (
                                     <Image
                                         src={previewAvatar || avatar}
                                         alt={name || 'User avatar'}
-                                        width={80}
-                                        height={80}
+                                        width={96}
+                                        height={96}
                                         className="object-cover w-full h-full"
                                     />
                                 ) : (
@@ -117,7 +206,6 @@ const ProfilePage = () => {
                                 <input
                                     id="avatar"
                                     type="file"
-                                    {...register('avatar')}
                                     accept="image/*"
                                     onChange={handleAvatarChange}
                                     className="hidden"
@@ -134,7 +222,6 @@ const ProfilePage = () => {
                                     disabled={!isEditing}
                                     id="name"
                                     type="text"
-                                    defaultValue={name}
                                     {...register('name', { required: 'Name is required' })}
                                     className="w-full bg-[#14171C] border border-[#262B32] text-[#E8E6E3] text-[15px] rounded-sm px-3.5 py-3 placeholder:text-[#5B6270] focus:outline-none focus:border-[#E63946] focus:bg-[#171a1f] transition-colors"
                                 />
@@ -146,7 +233,6 @@ const ProfilePage = () => {
                                 <select
                                     disabled={!isEditing}
                                     id="bloodGroup"
-                                    defaultValue={bloodGroup}
                                     {...register('bloodGroup', { required: 'Blood group is required' })}
                                     className="w-full bg-[#14171C] border border-[#262B32] text-[#E8E6E3] text-[15px] rounded-sm px-3.5 py-3 focus:outline-none focus:border-[#E63946] transition-colors appearance-none"
                                     style={{
@@ -162,7 +248,6 @@ const ProfilePage = () => {
                             </div>
                         </div>
 
-
                         {/* Email */}
                         <div>
                             <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wide text-[#8B93A1] mb-2">Email address</label>
@@ -175,15 +260,13 @@ const ProfilePage = () => {
                             />
                         </div>
 
-                        {/*District row and upazila*/}
+                        {/* District row and upazila */}
                         <div className="grid grid-cols-2 gap-4">
-
                             <div>
                                 <label htmlFor="district" className="block text-xs font-semibold uppercase tracking-wide text-[#8B93A1] mb-2">District</label>
                                 <select
                                     disabled={!isEditing}
                                     id="district"
-                                    defaultValue={district}
                                     {...register('district', { required: 'District is required' })}
                                     onChange={(e) => {
                                         const selected = districts.find((d) => d.name === e.target.value);
@@ -208,7 +291,6 @@ const ProfilePage = () => {
                                 <select
                                     id="upazila"
                                     disabled={!selectedDistrictId || !isEditing}
-                                    defaultValue={upazila}
                                     {...register('upazila', { required: 'Upazila is required' })}
                                     className="w-full bg-[#14171C] border border-[#262B32] text-[#E8E6E3] text-[15px] rounded-sm px-3.5 py-3 focus:outline-none focus:border-[#E63946] transition-colors appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
                                     style={{
@@ -226,24 +308,25 @@ const ProfilePage = () => {
                             </div>
                         </div>
 
-
                         <div className="flex justify-between items-center gap-4">
                             <Button
-                                variant="danger"
                                 hidden={!isEditing}
                                 type="submit"
-                                disabled={isSubmitting}
-                                className="w-full rounded-sm"
+                                disabled={isSubmitting || uploading}
+                                className="w-full bg-[#E63946] text-white rounded-sm hover:bg-[#d12d3a]"
                             >
                                 {isSubmitting ? 'Updating Profile...' : 'Update Profile'}
                             </Button>
-                            <Link href={`/dashboard/profile`} className="w-full" hidden={!isEditing}>
-                                <Button  variant="outline" className="rounded-sm w-full">
-                                    Cancel
-                                </Button>
-                            </Link>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                hidden={!isEditing}
+                                onClick={handleCancel}
+                                className="rounded-sm w-full text-white"
+                            >
+                                Cancel
+                            </Button>
                         </div>
-
                     </form>
                 </div>
             </div>

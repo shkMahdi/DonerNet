@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono, Big_Shoulders, Source_Serif_4, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import ScrollToTop from "@/components/ScrollToTop";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "react-hot-toast";
 
@@ -53,6 +54,7 @@ export default function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col">
         <Navbar></Navbar>
+        <ScrollToTop />
         <main>
           {children}
           <Toaster
