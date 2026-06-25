@@ -113,7 +113,7 @@ export default function MyRequestsTable({ requests = [] }) {
                                                     isIconOnly
                                                     aria-label="View details"
                                                     className=" hover:text-blue-400"
-                                                    onClick={() => window.location.href = `/dashboard/request-details/${req._id}`}
+                                                    onClick={() => window.location.href = `/donation-requests/${req._id}`}
                                                 >
                                                     <Eye size={18} />
                                                 </Button>
@@ -145,20 +145,23 @@ export default function MyRequestsTable({ requests = [] }) {
                                                 {req.status === 'inprogress' && (
                                                     <>
                                                         <Button
-                                                            className="btn btn-sm btn-success text-white flex items-center gap-1"
+                                                            size="sm"
                                                             variant="light"
+                                                            className="text-green-500 hover:text-green-400 flex items-center gap-1"
                                                             onClick={() => handleStatusUpdate(req._id, 'done')}
                                                         >
                                                             <CheckCircle size={16} />
                                                             Done
                                                         </Button>
-                                                        <button
-                                                            className="btn btn-sm btn-error text-white flex items-center gap-1"
+                                                        <Button
+                                                            size="sm"
+                                                            variant="light"
+                                                            className="text-red-500 hover:text-red-400 flex items-center gap-1"
                                                             onClick={() => handleStatusUpdate(req._id, 'canceled')}
                                                         >
                                                             <XCircle size={16} />
                                                             Cancel
-                                                        </button>
+                                                        </Button>
                                                     </>
                                                 )}
                                             </div>
@@ -167,7 +170,7 @@ export default function MyRequestsTable({ requests = [] }) {
                                 ))
                             ) : (
                                 <Table.Row>
-                                    <Table.Cell colSpan={9} className="text-center py-16 text-gray-400">
+                                    <Table.Cell colSpan={8} className="text-center py-16 text-gray-400">
                                         {requests.length === 0
                                             ? "You haven't made any donation requests yet."
                                             : `No ${statusFilter === 'all' ? '' : STATUS_FILTERS.find((f) => f.value === statusFilter)?.label.toLowerCase()} requests found.`}

@@ -73,12 +73,13 @@ const CreateRequestPage = () => {
 
          if(res.insertedId){
             toast.success('Requested Created Successfully!')
+            router.push('/donation-requests');
          }
     }
 
     return (
-        <div className="bg-[#0B0D10] flex items-center justify-center py-4">
-            <div className="w-full max-w-6xl">
+        <div className="bg-[#0B0D10] flex items-center justify-center py-2 md:py-4">
+            <div className="w-full max-w-7xl">
                 <div className="flex items-center gap-2 mb-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#E63946] shadow-[0_0_0_3px_rgba(230,57,70,0.14)]" />
                     <span className="text-[11px] font-mono uppercase tracking-wider text-[#E63946]">Make A Request</span>

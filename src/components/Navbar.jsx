@@ -9,8 +9,8 @@ import Image from 'next/image';
 import toast from 'react-hot-toast';
 
 const navLinks = [
-    { label: 'Donation Requests', href: '/requests' },
-    { label: 'Blood banks', href: '/blood-banks' },
+    { label: 'Donation Requests', href: '/donation-requests' },
+    { label: 'Funding', href: '/funding' },
     { label: 'About', href: '/about' },
 ];
 
