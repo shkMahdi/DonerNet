@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, ClipboardList, X, Pen, Users, List, User } from "lucide-react";
@@ -85,6 +86,16 @@ const SidebarContent = ({ onLinkClick }) => {
 
 const DashboardSidebar = () => {
     const { isOpen, close } = useSidebar();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        // Return a static placeholder sidebar matching desktop width to prevent layout shift during mount
+        return <aside className="w-60 flex-shrink-0 bg-[#0D1014] border-r border-[#1D2127] h-full hidden lg:flex" />;
+    }
 
     return (
         <>

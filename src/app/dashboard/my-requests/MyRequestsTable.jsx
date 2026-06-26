@@ -1,31 +1,43 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Chip, Label, ListBox, Select, Table } from '@heroui/react';
 import { format } from 'date-fns';
 import { Eye, Edit2, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { deleteRequest } from '@/app/lib/actions/deleteRequest';
+import DeleteConfirmModal from '@/components/dashboard/DeleteConfirmModal';
 
 const STATUS_FILTERS = [
     { label: 'All Requests', value: 'all' },
     { label: 'Pending', value: 'pending' },
-    { label: 'In Progress', value: 'inprogress' },
+    { label: 'In Progress', value: 'in progress' },
     { label: 'Done', value: 'done' },
     { label: 'Canceled', value: 'canceled' },
 ];
 
-export default function MyRequestsTable({ requests = [] }) {
+export default function MyRequestsTable({ requests: initialRequests = [] }) {
+    const [requests, setRequests] = useState(initialRequests);
     const [statusFilter, setStatusFilter] = useState('all');
+
+    useEffect(() => {
+        setRequests(initialRequests);
+    }, [initialRequests]);
 
     const filteredRequests = useMemo(() => {
         if (statusFilter === 'all') return requests;
         return requests.filter((req) => req.status === statusFilter);
     }, [requests, statusFilter]);
 
-    const handleDelete = (id) => {
-        if (confirm('Are you sure you want to delete this request?')) {
-            // TODO: Call delete API here
+    const handleDelete = async (id) => {
+        const result = await deleteRequest(id);
+        if (result && result.error) {
+            toast.error(result.error);
+        } else if (result && result.success) {
             toast.success('Request deleted successfully');
+            setRequests((prev) => prev.filter((req) => req._id !== id));
+        } else {
+            toast.error('Something went wrong. Please try again.');
         }
     };
 
@@ -91,7 +103,7 @@ export default function MyRequestsTable({ requests = [] }) {
                                             </div>
                                         </Table.Cell>
                                         <Table.Cell >
-                                           <p>{format(new Date(req.date), 'dd MMM yyyy')}</p>  <p className="text-xs text-gray-500 line-clamp-1">{req.time}</p>
+                                            <p>{format(new Date(req.date), 'dd MMM yyyy')}</p>  <p className="text-xs text-gray-500 line-clamp-1">{req.time}</p>
                                         </Table.Cell>
                                         <Table.Cell>
                                             <Chip color="danger" variant="soft" className="font-bold">
@@ -131,16 +143,10 @@ export default function MyRequestsTable({ requests = [] }) {
                                                     </Button>
                                                 )}
 
-                                                <Button
-                                                    size="sm"
-                                                    variant="light"
-                                                    isIconOnly
-                                                    aria-label="Delete request"
-                                                    className="hover:text-red-500"
-                                                    onClick={() => handleDelete(req._id)}
-                                                >
-                                                    <Trash2 size={18} />
-                                                </Button>
+                                                <DeleteConfirmModal
+                                                    request={req}
+                                                    onDelete={() => handleDelete(req._id)}
+                                                />
 
                                                 {req.status === 'inprogress' && (
                                                     <>

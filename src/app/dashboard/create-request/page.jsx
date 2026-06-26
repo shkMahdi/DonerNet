@@ -9,15 +9,17 @@ import { createRequest } from "@/app/lib/actions/requests";
 import toast from "react-hot-toast";
 import { getSession } from "better-auth/api";
 import { useSession } from "@/app/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 
 const CreateRequestPage = () => {
+    const router = useRouter();
     const [districts, setDistricts] = useState([]);
     const [upazilas, setUpazilas] = useState([]);
 
-    const {data: session} = useSession();
+    const { data: session } = useSession();
     const user = session?.user;
 
     const {
@@ -52,29 +54,29 @@ const CreateRequestPage = () => {
 
 
     const onSubmit = async (data) => {
-         const { name, bloodGroup, district, upazila, hospitalName, hospitalAddress, date, time, requestMessage } = data;
+        const { name, bloodGroup, district, upazila, hospitalName, hospitalAddress, date, time, requestMessage } = data;
 
-         const request = {
-            name, 
+        const request = {
+            name,
             bloodGroup,
-            district, 
+            district,
             upazila,
             hospitalName,
             hospitalAddress,
             date,
-            time, 
+            time,
             requestMessage,
             status: "pending",
             requesterName: user.name,
             requesterEmail: user.email
-         }
-         console.log(request);
-         const res = await createRequest(request);
+        }
+        console.log(request);
+        const res = await createRequest(request);
 
-         if(res.insertedId){
+        if (res.insertedId) {
             toast.success('Requested Created Successfully!')
             router.push('/donation-requests');
-         }
+        }
     }
 
     return (

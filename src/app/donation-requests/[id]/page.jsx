@@ -92,7 +92,10 @@ const RequestDetail = async ({ params }) => {
                                     <p className="text-[#E8E6E3] font-medium">{request.time}</p>
                                 </div>
                             </div>
-                            <DonateModal request={request} />
+                            {
+                                request.status === "pending" && <DonateModal request={request} />
+                            }
+
                         </div>
                     </div>
                 </div>

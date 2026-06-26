@@ -4,18 +4,23 @@ import { handleDonate } from "@/app/lib/actions/handleDonate";
 import { useSession } from "@/app/lib/auth-client";
 import { Button, Modal } from "@heroui/react";
 import { User, Mail, Heart } from "lucide-react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 const DonateModal = ({ request }) => {
     const { data: session } = useSession();
     const user = session?.user;
+    const router = useRouter();
 
-    const donateHandler = () => {
-        const result = handleDonate(request, user);
-        if (result.error) {
-            console.log("Error", result.error);
-        }
-        if (result.result) {
-            console.log("Result", result.result);
+    const donateHandler = async () => {
+        const result = await handleDonate(request, user);
+        if (result && result.error) {
+            toast.error(result.error);
+        } else if (result && result.result) {
+            toast.success("Thank you! Request marked as in progress.");
+            router.refresh();
+        } else {
+            toast.error("Something went wrong. Please try again.");
         }
     };
 
