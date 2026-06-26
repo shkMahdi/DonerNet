@@ -1,5 +1,6 @@
 "use client";
 
+import { handleDonate } from "@/app/lib/actions/handleDonate";
 import { useSession } from "@/app/lib/auth-client";
 import { Button, Modal } from "@heroui/react";
 import { User, Mail, Heart } from "lucide-react";
@@ -8,8 +9,14 @@ const DonateModal = ({ request }) => {
     const { data: session } = useSession();
     const user = session?.user;
 
-    const handleDonate = () => {
-        console.log("Donate clicked", request);
+    const donateHandler = () => {
+        const result = handleDonate(request, user);
+        if (result.error) {
+            console.log("Error", result.error);
+        }
+        if (result.result) {
+            console.log("Result", result.result);
+        }
     };
 
     return (
@@ -22,19 +29,17 @@ const DonateModal = ({ request }) => {
             <Modal.Backdrop variant="blur">
                 <Modal.Container>
                     <Modal.Dialog className="w-full max-w-[400px] bg-[#14171C] border border-[#1D2127] text-[#E8E6E3] p-6 sm:p-8 rounded-sm shadow-2xl relative overflow-hidden">
-                        {/* Subtle top brand accent line */}
                         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#E63946] to-transparent opacity-70" />
-                        
+
                         <Modal.CloseTrigger className="absolute right-4 top-4 text-[#8B93A1] hover:text-white transition-colors" />
-                        
+
                         <Modal.Header className="pb-4 border-b border-[#1D2127]">
                             <Modal.Heading className="text-xl font-bold text-[#E8E6E3] tracking-wide flex items-center gap-2">
                                 <Heart size={18} className="text-[#E63946]" /> Confirm Donation
                             </Modal.Heading>
                         </Modal.Header>
-                        
+
                         <Modal.Body className="py-6 space-y-5">
-                            {/* Donation Target Summary Card */}
                             <div className="bg-[#191D23] border border-[#262B32] rounded-sm p-4 flex items-center justify-between gap-4">
                                 <div className="space-y-1">
                                     <p className="text-[10px] font-mono uppercase tracking-wider text-[#8B93A1]">Donating to</p>
@@ -47,7 +52,6 @@ const DonateModal = ({ request }) => {
                                 </div>
                             </div>
 
-                            {/* User details inputs */}
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-[10px] font-mono uppercase tracking-wider text-[#8B93A1] mb-1.5">
@@ -79,14 +83,14 @@ const DonateModal = ({ request }) => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <p className="text-xs text-[#8B93A1] text-center pt-2 leading-relaxed">
                                 Are you sure you want to donate for this request?
                             </p>
                         </Modal.Body>
-                        
+
                         <Modal.Footer className="pt-4 border-t border-[#1D2127] flex gap-3">
-                            <Button onClick={handleDonate} className="w-full bg-[#E63946] hover:bg-[#d12d3a] text-white font-semibold rounded-sm py-5 transition-all duration-200 cursor-pointer" slot="close">
+                            <Button onClick={donateHandler} className="w-full bg-[#E63946] hover:bg-[#d12d3a] text-white font-semibold rounded-sm py-5 transition-all duration-200 cursor-pointer" slot="close">
                                 Confirm & Donate
                             </Button>
                             <Button className="w-full bg-[#191D23] border border-[#262B32] hover:bg-[#262B32] text-[#8B93A1] hover:text-[#E8E6E3] font-semibold rounded-sm py-5 transition-all duration-200 cursor-pointer" slot="close">

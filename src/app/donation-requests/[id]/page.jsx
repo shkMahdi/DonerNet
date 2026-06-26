@@ -2,18 +2,10 @@ import { getRequestDetail } from "@/app/lib/api/request-detail";
 import DonateModal from "@/components/DonateModal";
 import { MapPin, Calendar, Clock } from 'lucide-react';
 
-const statusStyles = {
-    pending: { bg: '#3D3318', text: '#D9A441', label: 'Pending' },
-    confirmed: { bg: '#0F2D26', text: '#5DCAA5', label: 'Confirmed' },
-    critical: { bg: '#7A2027', text: '#FF9FA6', label: 'Critical' },
-};
 
 const RequestDetail = async ({ params }) => {
     const { id } = await params;
     const request = await getRequestDetail(id);
-
-    const status = statusStyles[request.status] || statusStyles.pending;
-
     return (
         <div className="relative min-h-screen overflow-hidden text-[#E8E6E3]">
             {/* Background circles */}
@@ -38,10 +30,12 @@ const RequestDetail = async ({ params }) => {
                                 {request.bloodGroup}
                             </div>
                             <span
-                                className="font-mono text-[12px] uppercase tracking-wider px-3 py-1.5 rounded-sm"
-                                style={{ backgroundColor: status.bg, color: status.text }}
+                                className={`font-mono text-[12px] uppercase tracking-wider px-3 py-1.5 rounded-sm ${request.status === "pending" ? "bg-[#3D3318] text-[#D9A441]" :
+                                    request.status === "in progress" ? "bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20" :
+                                        "bg-[#7A2027] text-[#FF9FA6]"
+                                    }`}
                             >
-                                {status.label}
+                                {request.status}
                             </span>
                         </div>
 

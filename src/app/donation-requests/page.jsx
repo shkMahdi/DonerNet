@@ -3,7 +3,6 @@ import { getAllRequests } from "../lib/api/all-requests";
 
 const DonationRequests = async () => {
     const requests = await getAllRequests();
-    console.log(requests);
 
     return (
         <div className="relative min-h-screen overflow-hidden text-[#E8E6E3]">
@@ -29,7 +28,9 @@ const DonationRequests = async () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {requests.map((request) => (
-                            <RequestCard key={request._id} request={request} />
+                            request.status === "pending" && (
+                                <RequestCard key={request._id} request={request} />
+                            )
                         ))}
                     </div>
                 </div>
