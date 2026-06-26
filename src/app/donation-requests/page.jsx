@@ -3,6 +3,7 @@ import { getAllRequests } from "../lib/api/all-requests";
 
 const DonationRequests = async () => {
     const requests = await getAllRequests();
+    const pendingRequests = requests.filter((request) => request.status === "pending");
 
     return (
         <div className="relative min-h-screen overflow-hidden text-[#E8E6E3]">
@@ -26,13 +27,19 @@ const DonationRequests = async () => {
                     </p>
 
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {requests.map((request) => (
-                            request.status === "pending" && (
+                    {pendingRequests.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            {pendingRequests.map((request) => (
                                 <RequestCard key={request._id} request={request} />
-                            )
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-16 border border-[#1D2127] rounded-md">
+                            <p className="text-[#8B93A1] text-sm">
+                                No pending requests right now. Check back soon.
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
