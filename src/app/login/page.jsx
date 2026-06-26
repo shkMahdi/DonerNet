@@ -33,7 +33,7 @@ const LoginPage = () => {
     };
 
     return (
-        <div className=" bg-[#0B0D10] flex items-center justify-center px-4 min-h-screen">
+        <div className=" bg-[#0B0D10] flex items-center justify-center px-4 pt-8 sm:pt-10 pb-8 sm:pb-20">
             <div className="w-full max-w-md">
 
                 <div className="bg-[#14171C] border border-[#1D2127] rounded-md p-8 sm:p-10">
