@@ -2,7 +2,8 @@ import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { auth } from './app/lib/auth'
 
-const adminOnlyPaths = ['/dashboard/all-requests', '/dashboard/all-user']
+const adminOnlyPaths = ['/dashboard/all-user']    //'/dashboard/all-requests', 
+const adminAndVolunteerPaths = ['/dashboard/all-requests']
 
 export async function proxy(request) {
     const session = await auth.api.getSession({
@@ -15,8 +16,13 @@ export async function proxy(request) {
 
     const pathname = request.nextUrl.pathname
     const isAdminPath = adminOnlyPaths.some(path => pathname.startsWith(path))
+    const isAdminAndVolunteerPath = adminAndVolunteerPaths.some(path => pathname.startsWith(path))
 
     if (isAdminPath && session.user?.role !== 'admin') {
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+
+    if (isAdminAndVolunteerPath && session.user?.role !== 'admin' && session.user?.role !== 'volunteer') {
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 }
