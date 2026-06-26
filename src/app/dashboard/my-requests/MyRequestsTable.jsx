@@ -7,6 +7,7 @@ import { Eye, Edit2, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { deleteRequest } from '@/app/lib/actions/deleteRequest';
 import DeleteConfirmModal from '@/components/dashboard/DeleteConfirmModal';
+import { updateRequestStatus } from '@/app/lib/actions/updateRequestStatus';
 
 const STATUS_FILTERS = [
     { label: 'All Requests', value: 'all' },
@@ -19,6 +20,7 @@ const STATUS_FILTERS = [
 export default function MyRequestsTable({ requests: initialRequests = [] }) {
     const [requests, setRequests] = useState(initialRequests);
     const [statusFilter, setStatusFilter] = useState('all');
+    const [updatingId, setUpdatingId] = useState(null);
 
     useEffect(() => {
         setRequests(initialRequests);
@@ -41,9 +43,19 @@ export default function MyRequestsTable({ requests: initialRequests = [] }) {
         }
     };
 
-    const handleStatusUpdate = (id, newStatus) => {
-        // TODO: Call update status API
-        toast.success(`Request marked as ${newStatus}`);
+    const handleStatusUpdate = async (id, newStatus) => {
+        setUpdatingId(id);
+        const result = await updateRequestStatus(id, newStatus);
+
+        if (result?.error) {
+            toast.error(result.error);
+        } else {
+            toast.success(`Request marked as ${newStatus}`);
+            setRequests((prev) =>
+                prev.map((req) => (req._id === id ? { ...req, status: newStatus } : req))
+            );
+        }
+        setUpdatingId(null);
     };
 
     return (
@@ -64,7 +76,6 @@ export default function MyRequestsTable({ requests: initialRequests = [] }) {
                             {STATUS_FILTERS.map(({ label, value }) => (
                                 <ListBox.Item key={value} id={value} textValue={label}>
                                     {label}
-                                    {/* <ListBox.ItemIndicator /> */}
                                 </ListBox.Item>
                             ))}
                         </ListBox>
@@ -102,20 +113,29 @@ export default function MyRequestsTable({ requests: initialRequests = [] }) {
                                                 )}
                                             </div>
                                         </Table.Cell>
-                                        <Table.Cell >
-                                            <p>{format(new Date(req.date), 'dd MMM yyyy')}</p>  <p className="text-xs text-gray-500 line-clamp-1">{req.time}</p>
+                                        <Table.Cell>
+                                            <p>{format(new Date(req.date), 'dd MMM yyyy')}</p>
+                                            <p className="text-xs text-gray-500 line-clamp-1">{req.time}</p>
                                         </Table.Cell>
                                         <Table.Cell>
-                                            <Chip color="danger" variant="soft" className="font-bold">
+                                            <Chip color="danger" variant="soft" className="font-bold rounded-sm">
                                                 {req.bloodGroup.toUpperCase()}
                                             </Chip>
                                         </Table.Cell>
                                         <Table.Cell>
-                                            <Chip color={req.status === 'pending' ? 'warning' :
-                                                req.status === 'inprogress' ? 'info' :
-                                                    req.status === 'done' ? 'success' : 'error'} variant="soft">
+                                            <Chip
+                                                className="rounded-sm text-xs"
+                                                color={
+                                                    req.status === 'pending' ? 'warning' :
+                                                        req.status === 'in progress' ? 'info' :
+                                                            req.status === 'done' ? 'success' : 'error'
+                                                }
+                                                variant="soft"
+                                            >
                                                 {req.status.toUpperCase()}
                                             </Chip>
+                                            {req.status === 'in progress' && <p className="text-xs text-gray-500 line-clamp-1">by {req.donorName}</p>}
+                                            {req.status === 'in progress' && <p className="text-xs text-gray-500 line-clamp-1">{req.donorEmail}</p>}
                                         </Table.Cell>
                                         <Table.Cell>
                                             <div className="flex items-center">
@@ -124,7 +144,7 @@ export default function MyRequestsTable({ requests: initialRequests = [] }) {
                                                     variant="light"
                                                     isIconOnly
                                                     aria-label="View details"
-                                                    className=" hover:text-blue-400"
+                                                    className="hover:text-blue-400"
                                                     onClick={() => window.location.href = `/donation-requests/${req._id}`}
                                                 >
                                                     <Eye size={18} />
@@ -136,7 +156,7 @@ export default function MyRequestsTable({ requests: initialRequests = [] }) {
                                                         variant="light"
                                                         isIconOnly
                                                         aria-label="Edit request"
-                                                        className=" hover:text-blue-400"
+                                                        className="hover:text-blue-400"
                                                         onClick={() => window.location.href = `/dashboard/edit-request/${req._id}`}
                                                     >
                                                         <Edit2 size={18} />
@@ -148,12 +168,13 @@ export default function MyRequestsTable({ requests: initialRequests = [] }) {
                                                     onDelete={() => handleDelete(req._id)}
                                                 />
 
-                                                {req.status === 'inprogress' && (
+                                                {req.status === 'in progress' && (
                                                     <>
                                                         <Button
                                                             size="sm"
                                                             variant="light"
-                                                            className="text-green-500 hover:text-green-400 flex items-center gap-1"
+                                                            disabled={updatingId === req._id}
+                                                            className="text-green-500/50 hover:text-green-400 flex items-center gap-1 disabled:opacity-50"
                                                             onClick={() => handleStatusUpdate(req._id, 'done')}
                                                         >
                                                             <CheckCircle size={16} />
@@ -162,7 +183,8 @@ export default function MyRequestsTable({ requests: initialRequests = [] }) {
                                                         <Button
                                                             size="sm"
                                                             variant="light"
-                                                            className="text-red-500 hover:text-red-400 flex items-center gap-1"
+                                                            disabled={updatingId === req._id}
+                                                            className="text-red-500/50 hover:text-red-400 flex items-center gap-1 disabled:opacity-50"
                                                             onClick={() => handleStatusUpdate(req._id, 'canceled')}
                                                         >
                                                             <XCircle size={16} />
@@ -188,7 +210,6 @@ export default function MyRequestsTable({ requests: initialRequests = [] }) {
                 </Table.ScrollContainer>
             </Table>
 
-            {/* Pagination Placeholder */}
             <div className="flex justify-center mt-10">
                 <div className="join">
                     <button className="join-item btn btn-sm">«</button>
