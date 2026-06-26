@@ -1,5 +1,5 @@
 import { getMyRequests } from '@/app/lib/api/my-requests';
-import MyRequestsTable from './MyRequestsTable';   // Client Component
+import MyRequestsTable from './MyRequestsTable';
 import { auth } from '@/app/lib/auth';
 import { headers } from 'next/headers';
 
@@ -8,7 +8,7 @@ const MyRequests = async () => {
         headers: await headers(),
     });
     const user = session?.user;
-    const requesterEmail = user?.email; // TODO: Get from auth later
+    const requesterEmail = user?.email;
 
     const requests = await getMyRequests(requesterEmail);
 
@@ -19,7 +19,7 @@ const MyRequests = async () => {
                     <span className="w-1.5 h-1.5 rounded-full bg-[#E63946] shadow-[0_0_0_3px_rgba(230,57,70,0.14)]" />
                     <span className="text-[11px] font-mono uppercase tracking-wider text-[#E63946]">My Activity</span>
                 </div>
-                
+
                 <h1 className="text-4xl font-bold text-[#E8E6E3] mb-2">
                     My Donation Requests
                 </h1>
