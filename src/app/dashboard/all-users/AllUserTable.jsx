@@ -170,7 +170,7 @@ export default function AllUserTable({ AllUsers: initialUsers = [] }) {
                                                     size="sm"
                                                     variant="light"
                                                     isLoading={loadingId === user._id}
-                                                    disabled={loadingId === user._id}
+                                                    isDisabled={loadingId === user._id || user.role === "admin"}
                                                     className="text-[11px] font-mono uppercase text-[#E63946] border border-[#E63946]/30 hover:bg-[#E63946]/10 rounded-sm px-2.5"
                                                     onClick={() => updateUser(user._id, { status: 'blocked' })}
                                                 >
@@ -181,7 +181,7 @@ export default function AllUserTable({ AllUsers: initialUsers = [] }) {
                                                     size="sm"
                                                     variant="light"
                                                     isLoading={loadingId === user._id}
-                                                    disabled={loadingId === user._id}
+                                                    isDisabled={loadingId === user._id}
                                                     className="text-[11px] font-mono uppercase text-emerald-400 border border-emerald-400/30 hover:bg-emerald-400/10 rounded-sm px-2.5"
                                                     onClick={() => updateUser(user._id, { status: 'active' })}
                                                 >
