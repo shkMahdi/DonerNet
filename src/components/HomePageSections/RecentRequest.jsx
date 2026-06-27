@@ -10,22 +10,22 @@ const RecentRequest = async () => {
         .slice(0, 3);
 
     return (
-        <section className="bg-[#0B0D10] py-16 sm:py-20">
+        <section className="relative bg-[#0B0D10] py-16 sm:py-20">
+            {/* Pulse divider */}
+            <div className="absolute -top-5 w-full h-9 mb-10">
+                <svg viewBox="0 0 1200 36" preserveAspectRatio="none" className="w-full h-full">
+                    <path
+                        d="M0,18 L260,18 L290,18 L305,4 L320,32 L335,10 L350,18 L420,18 L900,18 L915,4 L930,32 L945,10 L960,18 L1200,18"
+                        fill="none"
+                        stroke="#E63946"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    />
+                </svg>
+            </div>
             <div className="max-w-[1180px] mx-auto px-6 lg:px-8">
 
-                {/* Pulse divider */}
-                <div className="w-full h-9 mb-10">
-                    <svg viewBox="0 0 1200 36" preserveAspectRatio="none" className="w-full h-full">
-                        <path
-                            d="M0,18 L260,18 L290,18 L305,4 L320,32 L335,10 L350,18 L420,18 L900,18 L915,4 L930,32 L945,10 L960,18 L1200,18"
-                            fill="none"
-                            stroke="#E63946"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-                </div>
 
                 {/* Section head */}
                 <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">

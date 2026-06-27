@@ -11,7 +11,6 @@ import toast from 'react-hot-toast';
 const navLinks = [
     { label: 'Donation Requests', href: '/donation-requests' },
     { label: 'Funding', href: '/funding' },
-    { label: 'About', href: '/about' },
 ];
 
 const Navbar = () => {
@@ -208,6 +207,7 @@ const Navbar = () => {
                                         variant="bordered"
                                         className="border-[#262B32] text-[#8B93A1] text-[13px] font-semibold rounded-sm w-full hover:border-[#5B6270] hover:text-[#E8E6E3] cursor-pointer"
                                     >
+                                        <LayoutDashboard size={15} />
                                         Dashboard
                                     </Button>
                                 </Link>

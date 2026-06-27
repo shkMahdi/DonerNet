@@ -1,7 +1,13 @@
+"use client";
 import Link from "next/link";
 import { FaFacebookF, FaXTwitter, FaLinkedinIn, FaInstagram } from "react-icons/fa6";
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
+import { usePathname } from "next/navigation";
+
 const Footer = () => {
+    const pathname = usePathname();
+    if (pathname.startsWith("/dashboard")) return null;
+
     return (
         <footer className="bg-[#080A0C] text-[#E8E6E3] border-t border-[#1D2127]">
 

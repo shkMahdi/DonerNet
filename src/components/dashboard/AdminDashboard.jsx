@@ -3,19 +3,26 @@ import { getAllUsers } from "@/app/lib/api/all-users";
 import { auth } from "@/app/lib/auth";
 import { Users, HeartHandshake, Droplet } from "lucide-react";
 import { headers } from "next/headers";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const AdminDashboard = async () => {
     const { token } = await auth.api.getToken({
         headers: await headers(),
     });
 
-
     const allUsers = await getAllUsers(token) ?? [];
     const allRequests = await getAllRequests();
 
+    // Fetch real funding total from Stripe
+    const paymentIntents = await stripe.paymentIntents.list({ limit: 100 });
+    const totalFunding = paymentIntents.data
+        .filter((pi) => pi.status === "succeeded")
+        .reduce((sum, pi) => sum + pi.amount / 100, 0);
+
     const userCnt = allUsers.length;
     const reqCnt = allRequests.length;
-    const totalFunding = "$12,000";
 
     const stats = [
         {
@@ -25,7 +32,7 @@ const AdminDashboard = async () => {
         },
         {
             label: 'Total funding',
-            value: totalFunding,
+            value: `$${totalFunding.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
             icon: HeartHandshake,
         },
         {
