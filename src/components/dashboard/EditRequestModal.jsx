@@ -228,9 +228,10 @@ const EditRequestModal = ({ request, onUpdated }) => {
 
                                 <div className="flex gap-3 pt-2">
                                     <Button
+                                        variant='danger'
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="w-full bg-sky-500 hover:bg-sky-400 text-white font-semibold rounded-sm py-3 transition-colors disabled:opacity-60"
+                                        className="w-full text-white font-semibold rounded-sm py-3 transition-colors disabled:opacity-60"
                                     >
                                         {isSubmitting ? 'Saving...' : 'Confirm Changes'}
                                     </Button>
