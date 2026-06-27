@@ -1,22 +1,25 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Chip, ListBox, Select, Table } from '@heroui/react';
+import { Button, Chip, Pagination, Table } from '@heroui/react';
 import { format } from 'date-fns';
-import { Eye, Edit2, CheckCircle, XCircle } from 'lucide-react';
+import { Eye, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { deleteRequest } from '@/app/lib/actions/deleteRequest';
 import DeleteConfirmModal from '@/components/dashboard/DeleteConfirmModal';
 import { updateRequestStatus } from '@/app/lib/actions/updateRequestStatus';
 import { useSession } from '@/app/lib/auth-client';
+import EditRequestModal from '@/components/dashboard/EditRequestModal';
 
 const STATUS_FILTERS = [
-    { label: 'All Requests', value: 'all' },
+    { label: 'All', value: 'all' },
     { label: 'Pending', value: 'pending' },
     { label: 'In Progress', value: 'in progress' },
     { label: 'Done', value: 'done' },
     { label: 'Canceled', value: 'canceled' },
 ];
+
+const ROWS_PER_PAGE = 8;
 
 export default function AllRequestsTable({ requests: initialRequests = [] }) {
     const { data: session } = useSession();
@@ -26,6 +29,7 @@ export default function AllRequestsTable({ requests: initialRequests = [] }) {
     const [requests, setRequests] = useState(initialRequests);
     const [statusFilter, setStatusFilter] = useState('all');
     const [updatingId, setUpdatingId] = useState(null);
+    const [page, setPage] = useState(1);
 
     useEffect(() => {
         setRequests(initialRequests);
@@ -35,6 +39,18 @@ export default function AllRequestsTable({ requests: initialRequests = [] }) {
         if (statusFilter === 'all') return requests;
         return requests.filter((req) => req.status === statusFilter);
     }, [requests, statusFilter]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredRequests.length / ROWS_PER_PAGE));
+
+    const paginated = useMemo(() => {
+        const start = (page - 1) * ROWS_PER_PAGE;
+        return filteredRequests.slice(start, start + ROWS_PER_PAGE);
+    }, [filteredRequests, page]);
+
+    const handleFilterChange = (value) => {
+        setStatusFilter(value);
+        setPage(1);
+    };
 
     const handleDelete = async (id) => {
         const result = await deleteRequest(id);
@@ -62,75 +78,87 @@ export default function AllRequestsTable({ requests: initialRequests = [] }) {
         setUpdatingId(null);
     };
 
+    const start = (page - 1) * ROWS_PER_PAGE + 1;
+    const end = Math.min(page * ROWS_PER_PAGE, filteredRequests.length);
+
     return (
-        <>
-            <div className="mb-6">
-                <Select
-                    className="w-fit px-4"
-                    aria-label="Filter by status"
-                    value={statusFilter}
-                    onChange={setStatusFilter}
-                >
-                    <Select.Trigger aria-label="Filter by status">
-                        <Select.Value />
-                        <Select.Indicator />
-                    </Select.Trigger>
-                    <Select.Popover>
-                        <ListBox aria-label="Status filter options">
-                            {STATUS_FILTERS.map(({ label, value }) => (
-                                <ListBox.Item key={value} id={value} textValue={label}>
-                                    {label}
-                                </ListBox.Item>
-                            ))}
-                        </ListBox>
-                    </Select.Popover>
-                </Select>
+        <div>
+            {/* Filter chips */}
+            <div className="flex items-center gap-2 mb-5 flex-wrap">
+                {STATUS_FILTERS.map((f) => (
+                    <button
+                        key={f.value}
+                        onClick={() => handleFilterChange(f.value)}
+                        className={`font-mono text-[11px] uppercase tracking-wider px-3.5 py-1.5 rounded-sm border transition-colors ${statusFilter === f.value
+                                ? 'bg-[#E63946] border-[#E63946] text-white'
+                                : 'border-[#262B32] text-[#5B6270] hover:border-[#5B6270] hover:text-[#8B93A1]'
+                            }`}
+                    >
+                        {f.label}
+                    </button>
+                ))}
+                <span className="ml-auto font-mono text-[11px] text-[#5B6270]">
+                    {filteredRequests.length} request{filteredRequests.length !== 1 ? 's' : ''}
+                </span>
             </div>
 
-            <Table className="min-w-full">
+            <Table>
                 <Table.ScrollContainer>
-                    <Table.Content aria-label="All Donation Requests">
+                    <Table.Content aria-label="All Donation Requests" className="min-w-[900px]">
                         <Table.Header>
                             <Table.Column isRowHeader>#</Table.Column>
-                            <Table.Column>Recipient Name</Table.Column>
+                            <Table.Column>Recipient</Table.Column>
                             <Table.Column>Location</Table.Column>
                             <Table.Column>Hospital</Table.Column>
                             <Table.Column>Date & Time</Table.Column>
-                            <Table.Column>Blood Group</Table.Column>
+                            <Table.Column>Blood</Table.Column>
                             <Table.Column>Status</Table.Column>
                             {isAdmin && <Table.Column>Actions</Table.Column>}
                         </Table.Header>
                         <Table.Body>
-                            {filteredRequests.length > 0 ? (
-                                filteredRequests.map((req, index) => (
+                            {paginated.length > 0 ? (
+                                paginated.map((req, index) => (
                                     <Table.Row key={req._id || index}>
-                                        <Table.Cell>{index + 1}</Table.Cell>
-                                        <Table.Cell className="font-medium">{req.name}</Table.Cell>
-                                        <Table.Cell>
+                                        <Table.Cell className="text-[#5B6270] font-mono text-xs">
+                                            {(page - 1) * ROWS_PER_PAGE + index + 1}
+                                        </Table.Cell>
+
+                                        <Table.Cell className="text-[#E8E6E3] font-medium text-sm">
+                                            {req.name}
+                                        </Table.Cell>
+
+                                        <Table.Cell className="text-[#8B93A1] text-sm">
                                             {req.district}, {req.upazila}
                                         </Table.Cell>
+
                                         <Table.Cell>
-                                            <div className="text-sm">
-                                                <p className="font-medium">{req.hospitalName}</p>
-                                                {req.hospitalAddress && (
-                                                    <p className="text-gray-500 text-xs line-clamp-1">{req.hospitalAddress}</p>
-                                                )}
-                                            </div>
+                                            <p className="text-[#E8E6E3] text-sm font-medium">{req.hospitalName}</p>
+                                            {req.hospitalAddress && (
+                                                <p className="text-[#5B6270] text-xs line-clamp-1">{req.hospitalAddress}</p>
+                                            )}
                                         </Table.Cell>
+
                                         <Table.Cell>
-                                            <p>{format(new Date(req.date), 'dd MMM yyyy')}</p>
-                                            <p className="text-xs text-gray-500">{req.time}</p>
+                                            <p className="text-[#E8E6E3] text-sm">
+                                                {format(new Date(req.date), 'dd MMM yyyy')}
+                                            </p>
+                                            <p className="text-[#5B6270] text-xs">{req.time}</p>
                                         </Table.Cell>
+
                                         <Table.Cell>
-                                            <Chip color="danger" variant="soft" className="font-bold rounded-sm">
+                                            <Chip
+                                                color="danger"
+                                                variant="soft"
+                                                className="font-bold rounded-sm font-mono text-[11px]"
+                                            >
                                                 {req.bloodGroup.toUpperCase()}
                                             </Chip>
                                         </Table.Cell>
 
-                                        {/* Status column — visible to everyone, Done/Cancel for all roles */}
+                                        {/* Status — Done/Cancel visible to all roles */}
                                         <Table.Cell>
                                             <Chip
-                                                className="rounded-sm text-xs"
+                                                className="rounded-sm font-mono text-[10px] uppercase"
                                                 color={
                                                     req.status === 'pending' ? 'warning' :
                                                         req.status === 'in progress' ? 'info' :
@@ -138,67 +166,63 @@ export default function AllRequestsTable({ requests: initialRequests = [] }) {
                                                 }
                                                 variant="soft"
                                             >
-                                                {req.status.toUpperCase()}
+                                                {req.status}
                                             </Chip>
                                             {req.status === 'in progress' && (
-                                                <p className="text-xs text-gray-500 line-clamp-1">by {req.donorName}</p>
-                                            )}
-                                            {req.status === 'in progress' && (
-                                                <p className="text-xs text-gray-500 line-clamp-1">{req.donorEmail}</p>
-                                            )}
-                                            {req.status === 'in progress' && (
-                                                <div className="flex items-center gap-1 mt-1">
-                                                    <Button
-                                                        size="sm"
-                                                        variant="light"
-                                                        isLoading={updatingId === req._id}
-                                                        disabled={updatingId === req._id}
-                                                        className="text-green-500/50 hover:text-green-400 flex items-center gap-1 disabled:opacity-50"
-                                                        onClick={() => handleStatusUpdate(req._id, 'done')}
-                                                    >
-                                                        <CheckCircle size={16} />
-                                                        Done
-                                                    </Button>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="light"
-                                                        isLoading={updatingId === req._id}
-                                                        disabled={updatingId === req._id}
-                                                        className="text-red-500/50 hover:text-red-400 flex items-center gap-1 disabled:opacity-50"
-                                                        onClick={() => handleStatusUpdate(req._id, 'canceled')}
-                                                    >
-                                                        <XCircle size={16} />
-                                                        Cancel
-                                                    </Button>
-                                                </div>
+                                                <>
+                                                    <p className="text-[#5B6270] text-xs mt-0.5">by {req.donorName}</p>
+                                                    <p className="text-[#5B6270] text-xs line-clamp-1">{req.donorEmail}</p>
+                                                    <div className="flex items-center gap-1 mt-1">
+                                                        <Button
+                                                            size="sm"
+                                                            variant="light"
+                                                            isLoading={updatingId === req._id}
+                                                            isDisabled={updatingId === req._id}
+                                                            className="text-[11px] font-mono uppercase text-emerald-400 border border-emerald-400/30 hover:bg-emerald-400/10 rounded-sm px-2"
+                                                            onClick={() => handleStatusUpdate(req._id, 'done')}
+                                                        >
+                                                            <CheckCircle size={13} />
+                                                            Done
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="light"
+                                                            isLoading={updatingId === req._id}
+                                                            isDisabled={updatingId === req._id}
+                                                            className="text-[11px] font-mono uppercase text-[#E63946] border border-[#E63946]/30 hover:bg-[#E63946]/10 rounded-sm px-2"
+                                                            onClick={() => handleStatusUpdate(req._id, 'canceled')}
+                                                        >
+                                                            <XCircle size={13} />
+                                                            Cancel
+                                                        </Button>
+                                                    </div>
+                                                </>
                                             )}
                                         </Table.Cell>
 
-                                        {/* Actions column — admin only */}
+                                        {/* Actions — admin only */}
                                         {isAdmin && (
                                             <Table.Cell>
-                                                <div className="flex items-center">
+                                                <div className="flex items-center gap-0.5">
                                                     <Button
                                                         size="sm"
                                                         variant="light"
                                                         isIconOnly
                                                         aria-label="View details"
-                                                        className="hover:text-blue-400"
+                                                        className="text-[#5B6270] hover:text-sky-400"
                                                         onClick={() => window.location.href = `/donation-requests/${req._id}`}
                                                     >
-                                                        <Eye size={18} />
+                                                        <Eye size={16} />
                                                     </Button>
                                                     {req.status === 'pending' && (
-                                                        <Button
-                                                            size="sm"
-                                                            variant="light"
-                                                            isIconOnly
-                                                            aria-label="Edit request"
-                                                            className="hover:text-blue-400"
-                                                            onClick={() => window.location.href = `/dashboard/edit-request/${req._id}`}
-                                                        >
-                                                            <Edit2 size={18} />
-                                                        </Button>
+                                                        <EditRequestModal
+                                                            request={req}
+                                                            onUpdated={(updatedReq) =>
+                                                                setRequests((prev) =>
+                                                                    prev.map((r) => (r._id === updatedReq._id ? updatedReq : r))
+                                                                )
+                                                            }
+                                                        />
                                                     )}
                                                     <DeleteConfirmModal
                                                         request={req}
@@ -211,9 +235,9 @@ export default function AllRequestsTable({ requests: initialRequests = [] }) {
                                 ))
                             ) : (
                                 <Table.Row>
-                                    <Table.Cell colSpan={isAdmin ? 8 : 7} className="text-center py-16 text-gray-400">
+                                    <Table.Cell colSpan={isAdmin ? 8 : 7} className="text-center py-16 text-[#5B6270] font-mono text-xs uppercase tracking-wider">
                                         {requests.length === 0
-                                            ? "No donation requests found."
+                                            ? 'No donation requests found.'
                                             : `No ${statusFilter === 'all' ? '' : STATUS_FILTERS.find((f) => f.value === statusFilter)?.label.toLowerCase()} requests found.`}
                                     </Table.Cell>
                                 </Table.Row>
@@ -221,17 +245,44 @@ export default function AllRequestsTable({ requests: initialRequests = [] }) {
                         </Table.Body>
                     </Table.Content>
                 </Table.ScrollContainer>
-            </Table>
 
-            <div className="flex justify-center mt-10">
-                <div className="join">
-                    <button className="join-item btn btn-sm">«</button>
-                    <button className="join-item btn btn-sm">1</button>
-                    <button className="join-item btn btn-sm btn-active">2</button>
-                    <button className="join-item btn btn-sm">3</button>
-                    <button className="join-item btn btn-sm">»</button>
-                </div>
-            </div>
-        </>
+                {totalPages > 1 && (
+                    <Table.Footer>
+                        <Pagination size="sm">
+                            <Pagination.Summary className="font-mono text-[11px] text-[#5B6270]">
+                                {start}–{end} of {filteredRequests.length}
+                            </Pagination.Summary>
+                            <Pagination.Content>
+                                <Pagination.Item>
+                                    <Pagination.Previous
+                                        isDisabled={page === 1}
+                                        onPress={() => setPage((p) => Math.max(1, p - 1))}
+                                    >
+                                        <Pagination.PreviousIcon />
+                                        Prev
+                                    </Pagination.Previous>
+                                </Pagination.Item>
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                                    <Pagination.Item key={p}>
+                                        <Pagination.Link isActive={p === page} onPress={() => setPage(p)}>
+                                            {p}
+                                        </Pagination.Link>
+                                    </Pagination.Item>
+                                ))}
+                                <Pagination.Item>
+                                    <Pagination.Next
+                                        isDisabled={page === totalPages}
+                                        onPress={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                    >
+                                        Next
+                                        <Pagination.NextIcon />
+                                    </Pagination.Next>
+                                </Pagination.Item>
+                            </Pagination.Content>
+                        </Pagination>
+                    </Table.Footer>
+                )}
+            </Table>
+        </div>
     );
 }
