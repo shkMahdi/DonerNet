@@ -74,6 +74,67 @@ const Banner = () => {
                         </div>
                     </div>
 
+                    {/* Right: blood type visual */}
+                    <div className="hidden lg:flex flex-col gap-3">
+
+                        {/* Top row */}
+                        <div className="grid grid-cols-4 gap-3">
+                            {['A+', 'B+', 'AB+', 'O+'].map((type) => (
+                                <div
+                                    key={type}
+                                    className="bg-[#14171C] border border-[#1D2127] rounded-sm p-4 flex flex-col items-center justify-center gap-2 aspect-square"
+                                >
+                                    <svg width="18" height="22" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14 2C14 2 2 14 2 21C2 27.627 7.373 30 14 30C20.627 30 26 27.627 26 21C26 14 14 2 14 2Z" fill="rgba(230,57,70,0.15)" stroke="#E63946" strokeWidth="1.5" />
+                                    </svg>
+                                    <span className="font-mono font-bold text-sm text-[#E8E6E3]">{type}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Middle: urgent request card */}
+                        <div className="bg-[#14171C] border border-[#E63946]/30 rounded-sm p-5 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-[#E63946]" />
+                            <div className="pl-3">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#E63946] animate-pulse" />
+                                    <span className="font-mono text-[10px] uppercase tracking-wider text-[#E63946]">Urgent request</span>
+                                </div>
+                                <p className="text-[#E8E6E3] text-sm font-semibold mb-1">O− needed · Dhaka Medical</p>
+                                <p className="text-[#5B6270] text-xs font-mono">2 units · today by 6:00 PM</p>
+                                <div className="mt-4 flex items-center gap-2">
+                                    <div className="flex -space-x-2">
+                                        {[0, 1, 2].map((i) => (
+                                            <div key={i} className="w-6 h-6 rounded-full bg-[#1D2127] border border-[#262B32] flex items-center justify-center text-[9px] font-bold text-[#5B6270]">
+                                                {['A', 'R', 'M'][i]}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <span className="text-[#5B6270] text-[11px] font-mono">3 donors notified</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Bottom row */}
+                        <div className="grid grid-cols-4 gap-3">
+                            {['A−', 'B−', 'AB−', 'O−'].map((type) => (
+                                <div
+                                    key={type}
+                                    className="bg-[#14171C] border border-[#1D2127] rounded-sm p-4 flex flex-col items-center justify-center gap-2 aspect-square"
+                                >
+                                    <svg width="18" height="22" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14 2C14 2 2 14 2 21C2 27.627 7.373 30 14 30C20.627 30 26 27.627 26 21C26 14 14 2 14 2Z" fill="rgba(230,57,70,0.06)" stroke="#5B6270" strokeWidth="1.5" />
+                                    </svg>
+                                    <span className="font-mono font-bold text-sm text-[#5B6270]">{type}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Bottom label */}
+                        <p className="text-center font-mono text-[10px] uppercase tracking-wider text-[#5B6270]">
+                            All 8 blood types · nationwide coverage
+                        </p>
+                    </div>
 
                 </div>
             </div>
